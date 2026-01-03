@@ -1,0 +1,64 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-pvc
+  namespace: clinic
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-service
+  namespace: clinic
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service
+  template:
+    metadata:
+      labels:
+        app: image-service
+    spec:
+      containers:
+        - name: image-service
+          image: image-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PORT
+              value: "8080"
+            - name: DATA_DIR
+              value: "/data"
+            - name: KEYCLOAK_JWKS_REALM_URL
+              value: "http://keycloak:8080/realms/clinic"
+            - name: KEYCLOAK_ISSUER
+              value: "http://localhost:30080/realms/clinic"
+          volumeMounts:
+            - name: image-data
+              mountPath: /data
+      volumes:
+        - name: image-data
+          persistentVolumeClaim:
+            claimName: image-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-service
+  namespace: clinic
+spec:
+  selector:
+    app: image-service
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30086

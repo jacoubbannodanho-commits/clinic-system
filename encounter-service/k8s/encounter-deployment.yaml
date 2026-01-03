@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: encounter-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: encounter-service
+  template:
+    metadata:
+      labels:
+        app: encounter-service
+    spec:
+      containers:
+        - name: encounter-service
+          image: encounter-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8083
+          env:
+            - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+              value: http://keycloak:8080/realms/clinic/protocol/openid-connect/certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: encounter-service
+spec:
+  selector:
+    app: encounter-service
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8083
+      targetPort: 8083
+      nodePort: 30083

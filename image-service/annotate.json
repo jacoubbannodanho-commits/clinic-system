@@ -1,0 +1,6 @@
+﻿{
+  "patientId": "123",
+  "texts": [
+    { "text": "TEST", "x": 40, "y": 60, "size": 32 }
+  ]
+}
