@@ -4,6 +4,6 @@ Microservices project.
 
 - patient-service
 - encounter-service
-- condition-service
+- message-service
 - image-service
 - search-service
